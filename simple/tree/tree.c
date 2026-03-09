@@ -50,6 +50,20 @@ TreeNode *tree_node_insert(TreeNode *treenode, int value) {
 	return treenode;
 }
 
+TreeNode *tree_node_search(TreeNode *treenode, int value) {
+	if (!treenode) {
+		return NULL;
+	}
+	if (treenode->data > value) {
+		return tree_node_search(treenode->left, value);
+	} else if (treenode->data < value) {
+		return tree_node_search(treenode->right, value);
+	} else {
+		return treenode;
+	}
+	return NULL;
+}
+
 void tree_print_nodes(TreeNode *treenode) {
 	if (!treenode) {
 		fprintf(stdout, "tree_print_nodes treenode nulled!\n");
