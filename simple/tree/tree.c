@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 	root = tree_node_insert(root, 57);
 	root = tree_node_insert(root, 21);
 	root = tree_node_insert(root, 81);
+	root = tree_node_insert(root, 57);
 	tree_print_nodes(root);
 	
 }
