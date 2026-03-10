@@ -63,4 +63,3 @@ void stacknode_push_int(StackNode *stacknode, const void *value, const int type)
 void stacknode_init_char(StackNode *stacknode, const void *value, const int type) {
     
 }
-StackNode 
