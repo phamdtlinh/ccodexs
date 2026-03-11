@@ -16,6 +16,7 @@ Thư mục này chứa các lời giải bài tập tham khảo của Chương 1
 | **1.2** | Fahrenheit - Celsius | [`ex_1_2.c`](./ex_1_2.c) | 13 | 2/10 |🚧|
 | **1.3** | Word Counting | [`ex_1_3.c`](./ex_1_3.c) | 20 | 4/10 |🚧|
 | **1.4** | Histogram Độ dài từ | [`ex_1_4.c`](./ex_1_4.c) | 24 | 6/10 |🚧|
+
 Danh sách trạng thái:
 ✅: Đã xong, 🚧 Đang làm, 📅 Chưa làm
 
