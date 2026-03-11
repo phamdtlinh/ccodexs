@@ -16,16 +16,18 @@ struct TreeNode {
 TreeNode *tree_node_insert(TreeNode *treenode, int value);
 TreeNode *tree_node_search(TreeNode *treenode, int value);
 TreeNode *tree_node_delete(TreeNode *treenode, int value);
-int tree_find_max(TreeNode *treenode);
-int tree_find_min(TreeNode *treenode);
+void tree_destroy(TreeNode *treenode);
+int tree_find_max(TreeNode *treenode, int *max);
+int tree_find_min(TreeNode *treenode, int *min);
 void tree_print_nodes(TreeNode *treenode);
+void tree_print_nodes_visualize(TreeNode* root, int space);
 
 // call seeding() before use rig011 and rig012
 void timespec_seeding();
 int rig011(int min, int max);
 int rig012(int min, int max);
 
-int main(int argc, char **argv) {
+int main(void) {
 	timespec_seeding();
 	TreeNode *root = NULL;
 	int max_capacity = 50;
@@ -40,11 +42,18 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 		tree_print_nodes(root);
-		printf("Min: %d\n", tree_find_min(root));
-		printf("Max: %d\n", tree_find_max(root));
-		root = tree_node_delete(root, 20);
+		int min = 0,max = 0;
+		tree_find_min(root, &min);
+		tree_find_max(root, &max);
+		printf("Min: %d\n", min);
+		printf("Max: %d\n", max);
+		int deleted_value = rig011(25,75);
+		printf("Start delete %d\n", deleted_value);
+		root = tree_node_delete(root, deleted_value);
 		printf("Root value: %d\n", root->data);
 		tree_print_nodes(root);
+		tree_print_nodes_visualize(root, 1);
+		tree_destroy(root);
 	}
 	
 }
@@ -104,10 +113,14 @@ TreeNode *tree_node_delete(TreeNode *treenode, int value) {
 		}
 		int rep_side = rig011(0,1) % 2; // 1 = max of left, 0 = min of right
 		if (rep_side) {
-			treenode->data = tree_find_max(treenode->left);
+			int max = 0;
+			tree_find_max(treenode->left, &max);
+			treenode->data = max;
     		treenode->left = tree_node_delete(treenode->left, treenode->data);
 		} else {
-			treenode->data = tree_find_min(treenode->right);
+			int min = 0;
+			tree_find_min(treenode->right, &min);
+			treenode->data = min;
     		treenode->right = tree_node_delete(treenode->right, treenode->data);
 		}
 		printf("Deleted %d\n", value);
@@ -115,19 +128,35 @@ TreeNode *tree_node_delete(TreeNode *treenode, int value) {
 	
 	return treenode;
 }
-int tree_find_max(TreeNode *treenode) {
+void tree_destroy(TreeNode *treenode) {
+	if (!treenode) {
+		fprintf(stderr, "tree_destroy treenode nulled!\n");
+		return;
+	}
+	if (treenode->right) {
+		tree_destroy(treenode->right);
+	}
+	if (treenode->left) {
+		tree_destroy(treenode->left);
+	}
+	free(treenode);
+	return;
+}
+int tree_find_max(TreeNode *treenode, int *max) {
 	if (!treenode) {
 		return 0;
 	}
 	while(treenode->right) treenode = treenode->right;
-	return treenode->data;
+	*max = treenode->data;
+	return 1;
 }
-int tree_find_min(TreeNode *treenode) {
+int tree_find_min(TreeNode *treenode, int *min) {
 	if (!treenode) {
 		return 0;
 	}
 	while(treenode->left) treenode = treenode->left;
-	return treenode->data;
+	*min = treenode->data;
+	return 1;
 }
 void tree_print_nodes(TreeNode *treenode) {
 	if (!treenode) {
@@ -141,6 +170,15 @@ void tree_print_nodes(TreeNode *treenode) {
 	if (treenode->right) {
 		tree_print_nodes(treenode->right);
 	}
+}
+void tree_print_nodes_visualize(TreeNode* root, int space) {
+    if (root == NULL) return;
+    space += 5;
+    tree_print_nodes_visualize(root->right, space);
+    printf("\n");
+    for (int i = 5; i < space; i++) printf(" ");
+    printf("%d\n", root->data);
+    tree_print_nodes_visualize(root->left, space);
 }
 
 void timespec_seeding() {
