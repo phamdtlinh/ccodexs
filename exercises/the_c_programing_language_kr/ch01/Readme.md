@@ -91,3 +91,4 @@ gcc -Wall -Wextra -std=c11 ex1_1.c -o ../../../bin/ex1_1
 * Luôn sử dụng `int main(void)` để tường minh.
 * Sử dụng `<stdbool.h>` cho các biến logic.
 * Sử dụng `size_t` cho các chỉ số mảng và biến đếm kích thước.
+* Nội dung được tạo bởi Gemini, có chỉnh sửa cho phù hợp
