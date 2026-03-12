@@ -3,22 +3,22 @@
 int main(void) {
 
 	int c;
-	int char_count = 0;
-	int word_count = 0;
-	int line_count = 0;
-	int is_space = 0;
+	int c_count = 0, w_count = 0, l_count = 0;
+	int prev_char = -1;
 	while ((c = getchar()) != EOF) {
-		if (c=='\n') line_count++;
-		if (c == ' ' && !is_space) {
-			word_count++;
-			is_space = 1;
-		} else if (c != ' ') {
-			is_space = 0;
+		if ((prev_char == -1) && (c != ' ' && c != '\n' && c != '\t')) w_count++;
+		if (prev_char == '\n' || prev_char == -1) l_count++;
+		if ((c == ' ' || c == '\n' || c == '\t') &&
+			(prev_char != ' ' && prev_char != '\n' && prev_char != '\t')) {
+			w_count++;
 		}
-		char_count++;
+		prev_char = c;
+		if (c != '\n' && c != '\t') c_count++;
 	}
-	if (char_count>0) word_count++;
-	printf("Character(s) count: %d\nWord(s) count: %d\nLine(s) count: %d\n", char_count, word_count, line_count);
+	if (prev_char == ' ' || prev_char == '\n' || prev_char == '\t') {
+		w_count--;
+	}
+	printf("Character(s) count: %d\nWord(s) count: %d\nLine(s) count: %d\n", c_count, w_count, l_count);
 
 	return 0;
 }
