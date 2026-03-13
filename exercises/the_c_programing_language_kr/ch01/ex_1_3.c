@@ -65,10 +65,10 @@ Line 1:		Standard input/output library
 
 Line 3:		Entry point start
 
-Line 5 - 9:	Variables decelerations
-Line 10:	Read char by char from keyboard via terminal (shell) as long as it is NOT EOF (Ctrl-D, once, sometime twice)
-Line 11-18:	Increase variables
-Line 20:	Increase variable word_count
+Line 5 - 7:	Variables decelerations
+Line 8:		Read char by char from keyboard via terminal (shell) as long as it is NOT EOF (Ctrl-D, once, sometime twice)
+Line 9-16:	Main logic
+Line 18-20:	Decrease the last count of word
 Line 21:	Print the results
 
 Line 23:	exit program without error
