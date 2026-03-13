@@ -22,6 +22,39 @@ int main(void) {
 
 	return 0;
 }
+/* Refined below:
+#include <stdio.h>
+
+typedef enum Switcher Switcher;
+enum Switcher {
+	ON = 1,
+	OFF = 0
+};
+
+int mispace(int c);
+
+int main(void) {
+	Switcher word_state = OFF;
+	int word_count = 0;
+	int c;
+	while ((c = getchar()) != EOF)
+	{
+		if (mispace(c)) {
+			word_state = OFF;
+		} else if (!word_state) {
+			word_state = ON;
+			word_count++;
+		}
+	}
+
+	printf("Word count: %d\n", word_count);
+
+	return 0;
+}
+int mispace(int c) {
+	return (c == ' ' || c == '\t' || c == '\n');
+}
+*/
 
 /*
 
