@@ -22,13 +22,13 @@ int main(int argc, char **argv) {
 	size_t line_buffer_capacity = LINE_BUFFER_INIT_CAPACITY;
 	char *line_buffer = NULL;
 	size_t buff_index = 0;
-	size_t sslen = strlen(argv[2]);
-	size_t rslen = strlen(argv[3]);
 	if (argc < 4) {
 		fprintf(stderr, "Usage: %s <filename> <search> <replace>\n", argv[0]);
 		return 1;
 	}
 
+	size_t sslen = strlen(argv[2]);
+	size_t rslen = strlen(argv[3]);
 	fp = fopen(argv[1], "r");
 	if (!fp) {
 		fprintf(stderr, "Failed to open: %s\n", argv[1]);
@@ -40,7 +40,6 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "line_buffer malloc failed!\n");
 		return 1;
 	}
-
 
 	while((c = fgetc(fp))) {
 		if (buff_index == line_buffer_capacity) {
