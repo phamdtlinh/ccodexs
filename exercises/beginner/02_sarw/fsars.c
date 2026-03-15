@@ -1,5 +1,7 @@
 /*
 	fsars.c (file search and replace string)
+	!!!!!!CAUTION!!!!!!
+	Destination file will be overwritten if existed
 */
 
 #include <stdio.h>
@@ -24,12 +26,22 @@ int main(int argc, char **argv) {
 	size_t sslen = strlen(argv[1]);
 	size_t rslen = strlen(argv[2]);
 	FILE *input_ptr = stdin;
-	size_t buffer_current_capacity = BUFFER_INIT_CAPACITY + BUFFER_READ_MAX_SIZE;
+	size_t buffer_current_capacity = BUFFER_INIT_CAPACITY + BUFFER_READ_MAX_SIZE + 1;
 	size_t buffer_index = 0;
 	char *buffer = malloc(BUFFER_INIT_CAPACITY * sizeof(*buffer));
 	if (!buffer) {
 		fprintf(stderr, "buffer malloc failed!\n");
 		return 1;
+	}
+
+	FILE *fp = NULL;
+	if (argc > 3) {
+		fp = fopen(argv[3], "r");
+		if (!fp) {
+			fprintf(stderr, "fopen failed, use stdin instead\n");
+		} else {
+			input_ptr = fp;
+		}
 	}
 
 	char *buffer_ptr = buffer;
@@ -42,6 +54,8 @@ int main(int argc, char **argv) {
 			if (!tmp) {
 				fprintf(stderr, "buffer realloc failed!\n");
 				free(buffer);
+				fclose(fp);
+				fp = NULL;
 				buffer = NULL;
 				return 1;
 			}
@@ -56,16 +70,74 @@ int main(int argc, char **argv) {
 		buffer_ptr += read_char;
 		buffer_index += read_char;
 		buffer[buffer_index] = '\0';
-		while ((buffer_ptr_search = strstr(buffer_ptr_search, argv[1]))) {
+		while ((buffer_ptr_search = strstr(buffer_ptr_search, argv[1])) != NULL) {
 			found_count++;
-			printf("%d\n", found_count);
 			buffer_ptr_search += sslen;
 		}
 	}
 	buffer[buffer_index] = '\0';
-
-	printf("Found \"%s\" %d time(s)\n%zu %zu\n", argv[1], found_count, strlen(buffer), (buffer + buffer_index) - buffer);
-	printf("%s\n", buffer);
-
+	char *result_buffer = NULL;
+	if (found_count > 0) {
+		int result_diff = (rslen - sslen) * found_count + 1;
+		size_t result_capacity = buffer_index + result_diff;
+		if (result_diff > 0) {
+			result_capacity = buffer_index + result_diff * sizeof(*buffer) + 1;
+		}
+		result_buffer = malloc(result_capacity);
+		if (!result_buffer) {
+			free(buffer);
+			fclose(fp);
+			fp = NULL;
+			buffer = NULL;
+			return 1;
+		}
+		char *bpt1 = buffer, *bpt2 = buffer;
+		char *rbt1 = result_buffer;
+		while ((bpt2 = strstr(bpt2, argv[1])) != NULL) {
+			size_t copy_len = bpt2 - bpt1;
+			memcpy(rbt1, bpt1, copy_len);
+			rbt1 += copy_len;
+			memcpy(rbt1, argv[2], rslen);
+			rbt1 += rslen;
+			bpt2 += sslen;
+			bpt1 = bpt2;
+		}
+		bpt2 = buffer + buffer_index;
+		size_t last_copy_len = bpt2 - bpt1;
+		memcpy(rbt1, bpt1, last_copy_len);
+		result_buffer[buffer_index+result_diff] = '\0';
+	}
+	
+	int write_to_output_file = 0;
+	if (argc>4) {
+		fclose(fp);
+		fp = NULL;
+		fp = fopen(argv[4], "w");
+		if (!fp) {
+			fprintf(stderr, "fopen failed, printf out instead!");
+		} else {
+			fprintf(fp, "Original:\n%s\n", buffer);
+			fprintf(fp, "Found \"%s\" %d time(s)\n", argv[1], found_count);
+			if (result_buffer) {
+				fprintf(fp, "Result:\n%s\n", result_buffer);
+			}
+			write_to_output_file = 1;
+		}
+	}
+	if (!write_to_output_file) {
+		printf("Original:\n%s\n", buffer);
+		printf("Found \"%s\" %d time(s)\n", argv[1], found_count);
+		if (result_buffer) {
+			printf("Result:\n%s\n", result_buffer);
+		}
+	}
+	free(result_buffer);
+	if (fp) {
+		fclose(fp);
+		fp = NULL;
+	}
+	free(buffer);
+	result_buffer = NULL;
+	buffer = NULL;
 	return 0;
 }
