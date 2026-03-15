@@ -26,9 +26,9 @@ int main(int argc, char **argv) {
 	size_t sslen = strlen(argv[1]);
 	size_t rslen = strlen(argv[2]);
 	FILE *input_ptr = stdin;
-	size_t buffer_current_capacity = BUFFER_INIT_CAPACITY + BUFFER_READ_MAX_SIZE + 1;
-	size_t buffer_index = 0;
-	char *buffer = malloc(BUFFER_INIT_CAPACITY * sizeof(*buffer));
+	size_t buffer_current_capacity = BUFFER_INIT_CAPACITY + 1;
+	size_t total_read = 0;
+	char *buffer = malloc(buffer_current_capacity * sizeof(*buffer));
 	if (!buffer) {
 		fprintf(stderr, "buffer malloc failed!\n");
 		return 1;
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 
 	FILE *fp = NULL;
 	if (argc > 3) {
-		fp = fopen(argv[3], "r");
+		fp = fopen(argv[3], "rb");
 		if (!fp) {
 			fprintf(stderr, "fopen failed, use stdin instead\n");
 		} else {
@@ -48,8 +48,8 @@ int main(int argc, char **argv) {
 	char *buffer_ptr_search = buffer;
 	int found_count = 0;
 	while (1) {
-		if ((buffer_index + BUFFER_READ_MAX_SIZE) >= buffer_current_capacity) {
-			size_t new_capacity = buffer_current_capacity * BUFFER_GROW_FACTOR + BUFFER_READ_MAX_SIZE;
+		if ((total_read + BUFFER_READ_MAX_SIZE) >= buffer_current_capacity) {
+			size_t new_capacity = buffer_current_capacity * BUFFER_GROW_FACTOR;
 			char *tmp = realloc(buffer, new_capacity);
 			if (!tmp) {
 				fprintf(stderr, "buffer realloc failed!\n");
@@ -61,29 +61,28 @@ int main(int argc, char **argv) {
 			}
 			buffer = tmp;
 			buffer_current_capacity = new_capacity;
-			buffer_ptr = buffer + buffer_index;
+			buffer_ptr = buffer + total_read;
 		}
 		size_t read_char = 0;
 		read_char = fread(buffer_ptr, sizeof(*buffer), BUFFER_READ_MAX_SIZE, input_ptr);
 		if (!read_char) break;
-		buffer_ptr_search = buffer_ptr;
 		buffer_ptr += read_char;
-		buffer_index += read_char;
-		buffer[buffer_index] = '\0';
-		while ((buffer_ptr_search = strstr(buffer_ptr_search, argv[1])) != NULL) {
-			found_count++;
-			buffer_ptr_search += sslen;
-		}
+		total_read += read_char;
 	}
-	buffer[buffer_index] = '\0';
+	buffer[total_read] = '\0';
+	buffer_ptr_search = buffer;
+	while ((buffer_ptr_search = strstr(buffer_ptr_search, argv[1])) != NULL) {
+		found_count++;
+		buffer_ptr_search += sslen;
+	}
 	char *result_buffer = NULL;
 	if (found_count > 0) {
-		int result_diff = (rslen - sslen) * found_count + 1;
-		size_t result_capacity = buffer_index + result_diff;
+		int result_diff = (rslen - sslen) * found_count;
+		size_t result_capacity = total_read + result_diff;
 		if (result_diff > 0) {
-			result_capacity = buffer_index + result_diff * sizeof(*buffer) + 1;
+			result_capacity = total_read + result_diff * sizeof(*buffer);
 		}
-		result_buffer = malloc(result_capacity);
+		result_buffer = malloc(result_capacity + 1);
 		if (!result_buffer) {
 			free(buffer);
 			fclose(fp);
@@ -102,10 +101,10 @@ int main(int argc, char **argv) {
 			bpt2 += sslen;
 			bpt1 = bpt2;
 		}
-		bpt2 = buffer + buffer_index;
+		bpt2 = buffer + total_read;
 		size_t last_copy_len = bpt2 - bpt1;
 		memcpy(rbt1, bpt1, last_copy_len);
-		result_buffer[buffer_index+result_diff] = '\0';
+		result_buffer[result_capacity] = '\0';
 	}
 	
 	int write_to_output_file = 0;
@@ -128,7 +127,7 @@ int main(int argc, char **argv) {
 		printf("Original:\n%s\n", buffer);
 		printf("Found \"%s\" %d time(s)\n", argv[1], found_count);
 		if (result_buffer) {
-			printf("Result:\n%s\n", result_buffer);
+			printf("Result:\n%s", result_buffer);
 		}
 	}
 	free(result_buffer);
