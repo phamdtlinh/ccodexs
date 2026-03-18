@@ -12,6 +12,11 @@ void xorswap(char *s, char *e) {
 } 
 int main(int argc, char **argv) {
 
+
+	char *c_utf8 = "Xin chào đồng chí nhé!";
+	
+	printf("%s\n", c_utf8);
+
 	if (argc<2) {
 		fprintf(stderr, "Usage: %s <string>\n", argv[0]);
 		return 1;
@@ -40,15 +45,21 @@ int main(int argc, char **argv) {
 	printf("Original: %s\n", argv[1]);
 	printf("Reversed Char: %s\n", s_mirror);
 	s_start = s_mirror;
-	s_end = s_start + strlen(s_mirror) - 1;
+	s_end = s_start + strlen(s_mirror);
 	char *w_start = s_mirror;
 	char *w_end = s_mirror;
-	while(w_end<s_mirror) {
-		if (isspace(w_end)) {
-			while(w_start<w_end) {
-				xorswap(w_start, w_end);
-				w_start++;
+	while(w_end<=s_end) {
+		if (isspace(*w_end) || (*w_end=='\0')) {
+			char *sswap = w_start;
+			char *eswap = w_end - 1;
+			while(sswap<eswap) {
+				printf("swap %c with %c\n", *sswap, *eswap);
+				xorswap(sswap, eswap);
+				sswap++;
+				eswap--;
 			}
+			w_end += 1;
+			w_start = w_end;
 		}
 		w_end++;
 	}
