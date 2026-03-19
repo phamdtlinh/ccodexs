@@ -23,7 +23,7 @@ int main() {
         fprintf(f, "allow user%d\n", i);
         fprintf(f, "parent 1000 tcp %s.%d 0\n", base_ip, i);
         fprintf(f, "external %s.%d\n", base_ip, i);
-        fprintf(f, "socks -p%d -i %s.%d\n", port, base_ip, i);
+        fprintf(f, "socks -p%d -i%s.%d\n", port, base_ip, i);
         fprintf(f, "flush\n\n");
     }
 
