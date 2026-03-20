@@ -64,14 +64,9 @@ int main() {
             write(client_fd, pong, strlen(pong));
             printf("Sent: %s", pong);
         }
-        if (strncmp(buffer, "QUIT", 4) == 0) {
-            char pong[BUF_SIZE];
-            snprintf(pong, sizeof(pong), "QUIT%s\r\n", buffer + 4);
-            write(client_fd, pong, strlen(pong));
-            printf("Sent: %s", pong);
-    		close(client_fd);
-        }
     }
+
+    close(client_fd);
     close(server_fd);
     return 0;
 }
